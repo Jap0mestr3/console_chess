@@ -14,8 +14,29 @@
             this.cor = cor;
             this.qtdMovimentos = 0;
         }
+        
+        public bool existeMovimentoPossivel()
+        {
+            bool[,] mat = movimentosPossiveis();
+            for(int i=0; i<tab.linha; i++)
+            {
+                for(int j=0; j < tab.coluna; j++)
+                {
+                    if (mat[i, j])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         public abstract bool[,] movimentosPossiveis();
+
+        public bool PodeMoverParaPosicao(Posicao pos)
+        {
+            return movimentosPossiveis()[pos.linha, pos.coluna];
+        }
 
         public void IncrementaMovimento()
         {
