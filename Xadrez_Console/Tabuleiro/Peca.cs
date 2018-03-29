@@ -33,7 +33,7 @@
 
         public abstract bool[,] movimentosPossiveis();
 
-        public bool PodeMoverParaPosicao(Posicao pos)
+        public bool MovimentoPossivel(Posicao pos)
         {
             return movimentosPossiveis()[pos.linha, pos.coluna];
         }
