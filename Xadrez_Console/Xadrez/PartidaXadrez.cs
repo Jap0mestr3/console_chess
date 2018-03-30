@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using Tabuleiro;
 
@@ -13,14 +14,16 @@ namespace Xadrez
         HashSet<Peca> pecas = new HashSet<Peca>();
         HashSet<Peca> capturadas = new HashSet<Peca>();
         public bool xeque { get; private set; }
+        public Peca vulneravelEnPassant { get; private set; }
 
         public PartidaXadrez()
         {
             tab = new tabuleiro(8, 8);
             turno = 1;
             xeque = false;
-            jogadorAtual = Cor.Branca;
             terminada = false;
+            jogadorAtual = Cor.Branca;
+            vulneravelEnPassant = null;
             colocarPecas();
         }
 
@@ -34,7 +37,7 @@ namespace Xadrez
             {
                 capturadas.Add(pecaCapturada);
             }
-
+            //Jogadas especiais:
             #region Roque Pequeno
             if(p is Rei && destino.coluna == origem.coluna + 2)
             {
@@ -55,6 +58,26 @@ namespace Xadrez
                 tab.colocarPeca(T, destinoT);
             }
             #endregion
+            #region En Passant
+            if(p is Peao)
+            {
+                if(origem.coluna != destino.coluna && pecaCapturada == null)
+                {
+                    Posicao posP;
+                    if(p.cor == Cor.Branca)
+                    {
+                        posP = new Posicao(destino.linha + 1, destino.coluna);
+                    }
+                    else
+                    {
+                        posP = new Posicao(destino.linha - 1, destino.coluna);
+                    }
+                    pecaCapturada = tab.retirarPeca(posP);
+                    capturadas.Add(pecaCapturada);
+                }
+            }
+            #endregion 
+            //##################
             return pecaCapturada;
         }
 
@@ -68,7 +91,7 @@ namespace Xadrez
                 capturadas.Remove(pecaCapturada);
             }
             tab.colocarPeca(p, origem);
-
+            //Jogadas especiais:
             #region Roque Pequeno desfaz
             if (p is Rei && destino.coluna == origem.coluna + 2)
             {
@@ -89,6 +112,27 @@ namespace Xadrez
                 tab.colocarPeca(T, origemT);
             }
             #endregion
+            #region En Passant
+            if(p is Peao)
+            {
+                if(origem.coluna != destino.coluna && pecaCapturada == vulneravelEnPassant)
+                {
+                    Peca peao = tab.retirarPeca(destino);
+                    Posicao posP;
+                    if(p.cor == Cor.Branca)
+                    {
+                        posP = new Posicao(3, destino.coluna);
+                    }
+                    else
+                    {
+                        posP = new Posicao(4, destino.coluna);
+                    }
+                    tab.colocarPeca(peao, posP);
+                }
+            }
+            #endregion 
+            //##################
+
         }
 
         public void RealizaJogada(Posicao origem, Posicao destino)
@@ -118,6 +162,20 @@ namespace Xadrez
                 turno++;
                 mudaJogador();
             }
+
+            Peca p = tab.peca(destino);
+
+            #region En Passant
+            if(p is Peao && (destino.linha == origem.linha - 2) || (destino.linha == origem.linha + 2))
+            {
+                vulneravelEnPassant = p;
+            }
+            else
+            {
+                vulneravelEnPassant = null;
+            }
+            #endregion
+
         }
 
         public void ValidarPosOrigem(Posicao pos)
@@ -266,6 +324,7 @@ namespace Xadrez
 
         private void colocarPecas()
         {
+            
             colocarNovaPeca('a', 1, new Torre(tab, Cor.Branca));
             colocarNovaPeca('b', 1, new Cavalo(tab, Cor.Branca));
             colocarNovaPeca('c', 1, new Bispo(tab, Cor.Branca));
