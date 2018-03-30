@@ -34,6 +34,27 @@ namespace Xadrez
             {
                 capturadas.Add(pecaCapturada);
             }
+
+            #region Roque Pequeno
+            if(p is Rei && destino.coluna == origem.coluna + 2)
+            {
+                Posicao origemT = new Posicao(origem.linha, origem.coluna + 3);
+                Posicao destinoT = new Posicao(origem.linha, origem.coluna + 1);
+                Peca T = tab.retirarPeca(origemT);
+                T.IncrementaMovimento();
+                tab.colocarPeca(T, destinoT);
+            }
+            #endregion
+            #region Roque Grande
+            if (p is Rei && destino.coluna == origem.coluna - 2)
+            {
+                Posicao origemT = new Posicao(origem.linha, origem.coluna - 4);
+                Posicao destinoT = new Posicao(origem.linha, origem.coluna - 1);
+                Peca T = tab.retirarPeca(origemT);
+                T.IncrementaMovimento();
+                tab.colocarPeca(T, destinoT);
+            }
+            #endregion
             return pecaCapturada;
         }
 
@@ -47,6 +68,27 @@ namespace Xadrez
                 capturadas.Remove(pecaCapturada);
             }
             tab.colocarPeca(p, origem);
+
+            #region Roque Pequeno desfaz
+            if (p is Rei && destino.coluna == origem.coluna + 2)
+            {
+                Posicao origemT = new Posicao(origem.linha, origem.coluna + 3);
+                Posicao destinoT = new Posicao(origem.linha, origem.coluna + 1);
+                Peca T = tab.retirarPeca(destinoT);
+                T.DecrementaMovimento();
+                tab.colocarPeca(T, origemT);
+            }
+            #endregion
+            #region Roque Grande desfaz
+            if (p is Rei && destino.coluna == origem.coluna - 2)
+            {
+                Posicao origemT = new Posicao(origem.linha, origem.coluna - 4);
+                Posicao destinoT = new Posicao(origem.linha, origem.coluna - 1);
+                Peca T = tab.retirarPeca(destinoT);
+                T.IncrementaMovimento();
+                tab.colocarPeca(T, origemT);
+            }
+            #endregion
         }
 
         public void RealizaJogada(Posicao origem, Posicao destino)
